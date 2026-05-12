@@ -1,0 +1,37 @@
+=== Jailbreak Detector — Training Log ===
+Start : 2026-05-12 18:53:59
+Model : bert-base-uncased
+Epochs: 3 | BS: 16 | LR: 2e-05 | MaxLen: 128
+============================================
+
+[Train step=  20 epoch=0.11] loss=0.7238 | grad_norm=2.0904 | learning_rate=0.0000 | epoch=0.1143
+[Train step=  40 epoch=0.23] loss=0.6334 | grad_norm=3.4251 | learning_rate=0.0000 | epoch=0.2286
+[Train step=  60 epoch=0.34] loss=0.3936 | grad_norm=3.7167 | learning_rate=0.0000 | epoch=0.3429
+[Train step=  80 epoch=0.46] loss=0.1552 | grad_norm=1.2276 | learning_rate=0.0000 | epoch=0.4571
+[Train step= 100 epoch=0.57] loss=0.1577 | grad_norm=0.5572 | learning_rate=0.0000 | epoch=0.5714
+[Train step= 120 epoch=0.69] loss=0.0625 | grad_norm=21.5462 | learning_rate=0.0000 | epoch=0.6857
+[Train step= 140 epoch=0.80] loss=0.1114 | grad_norm=10.6042 | learning_rate=0.0000 | epoch=0.8000
+[Train step= 160 epoch=0.91] loss=0.0717 | grad_norm=0.1211 | learning_rate=0.0000 | epoch=0.9143
+[Eval  step= 175 epoch=1.00] loss=0.1064 | accuracy=0.9717 | f1=0.9717 | precision=0.9726 | recall=0.9717 | runtime=13.2844 | samples_per_second=45.1660 | steps_per_second=1.4300 | epoch=1.0000
+[Train step= 180 epoch=1.03] loss=0.0711 | grad_norm=0.0990 | learning_rate=0.0000 | epoch=1.0286
+[Train step= 200 epoch=1.14] loss=0.0486 | grad_norm=14.3346 | learning_rate=0.0000 | epoch=1.1429
+[Train step= 220 epoch=1.26] loss=0.0187 | grad_norm=0.1352 | learning_rate=0.0000 | epoch=1.2571
+[Train step= 240 epoch=1.37] loss=0.0510 | grad_norm=0.0524 | learning_rate=0.0000 | epoch=1.3714
+[Train step= 260 epoch=1.49] loss=0.0879 | grad_norm=3.5409 | learning_rate=0.0000 | epoch=1.4857
+[Train step= 280 epoch=1.60] loss=0.0527 | grad_norm=1.2318 | learning_rate=0.0000 | epoch=1.6000
+[Train step= 300 epoch=1.71] loss=0.0828 | grad_norm=2.9537 | learning_rate=0.0000 | epoch=1.7143
+[Train step= 320 epoch=1.83] loss=0.0335 | grad_norm=0.0508 | learning_rate=0.0000 | epoch=1.8286
+[Train step= 340 epoch=1.94] loss=0.0518 | grad_norm=0.0611 | learning_rate=0.0000 | epoch=1.9429
+[Eval  step= 350 epoch=2.00] loss=0.0898 | accuracy=0.9783 | f1=0.9783 | precision=0.9792 | recall=0.9783 | runtime=22.6639 | samples_per_second=26.4740 | steps_per_second=0.8380 | epoch=2.0000
+[Train step= 360 epoch=2.06] loss=0.0243 | grad_norm=0.0787 | learning_rate=0.0000 | epoch=2.0571
+[Train step= 380 epoch=2.17] loss=0.0220 | grad_norm=0.0874 | learning_rate=0.0000 | epoch=2.1714
+[Train step= 400 epoch=2.29] loss=0.0216 | grad_norm=0.0270 | learning_rate=0.0000 | epoch=2.2857
+[Train step= 420 epoch=2.40] loss=0.0028 | grad_norm=0.0307 | learning_rate=0.0000 | epoch=2.4000
+[Train step= 440 epoch=2.51] loss=0.0098 | grad_norm=0.0195 | learning_rate=0.0000 | epoch=2.5143
+[Train step= 460 epoch=2.63] loss=0.0553 | grad_norm=0.0235 | learning_rate=0.0000 | epoch=2.6286
+[Train step= 480 epoch=2.74] loss=0.0098 | grad_norm=0.0160 | learning_rate=0.0000 | epoch=2.7429
+[Train step= 500 epoch=2.86] loss=0.0258 | grad_norm=0.0908 | learning_rate=0.0000 | epoch=2.8571
+[Train step= 520 epoch=2.97] loss=0.0011 | grad_norm=0.0188 | learning_rate=0.0000 | epoch=2.9714
+[Eval  step= 525 epoch=3.00] loss=0.0860 | accuracy=0.9783 | f1=0.9783 | precision=0.9792 | recall=0.9783 | runtime=22.5245 | samples_per_second=26.6380 | steps_per_second=0.8440 | epoch=3.0000
+
+End   : 2026-05-12 19:08:10
