@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb~
+
+# Data (large files)
+data/raw/*.csv
+data/raw/*.json
+data/raw/*.jsonl
+data/processed/*.csv
+data/processed/*.json
+data/processed/*.pt
+
+# Model checkpoints (large binary files)
+results/models/*.bin
+results/models/*.safetensors
+results/models/checkpoint-*/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
