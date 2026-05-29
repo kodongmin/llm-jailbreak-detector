@@ -18,3 +18,6 @@ seaborn>=0.13.0
 # Jupyter
 notebook>=7.1.0
 ipywidgets>=8.1.0
+
+# Web demo
+gradio>=4.0.0
