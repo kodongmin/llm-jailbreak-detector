@@ -1,0 +1,15 @@
+{
+  "dataset": "14K augmented combined",
+  "val": {
+    "accuracy": 0.975,
+    "f1_macro": 0.974992,
+    "precision": 0.975607,
+    "recall": 0.975
+  },
+  "test": {
+    "accuracy": 0.971429,
+    "f1_macro": 0.971417,
+    "precision": 0.972184,
+    "recall": 0.971429
+  }
+}

@@ -25,8 +25,8 @@ data/processed/*.json
 data/processed/*.pt
 
 # Model checkpoints (large binary files)
-results/models/*.bin
-results/models/*.safetensors
+results/models/**/*.bin
+results/models/**/*.safetensors
 results/models/checkpoint-*/
 
 # OS
