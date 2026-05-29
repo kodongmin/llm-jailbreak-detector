@@ -17,7 +17,7 @@ from transformers import AutoTokenizer, BertForSequenceClassification
 # Model setup
 # ---------------------------------------------------------------------------
 BASE_DIR  = Path(__file__).parent
-MODEL_DIR = BASE_DIR / "results" / "models" / "bert-jailbreak" / "best"
+MODEL_DIR = BASE_DIR / "results" / "models" / "bert-augmented" / "best"
 MAX_LEN   = 128
 
 print(f"Loading model from {MODEL_DIR} ...")
