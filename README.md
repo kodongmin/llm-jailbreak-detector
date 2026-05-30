@@ -1,22 +1,23 @@
 # LLM Jailbreak Detector
 
-BERT 파인튜닝 기반의 LLM Jailbreak 프롬프트 탐지 시스템입니다.  
-텍스트 프롬프트가 **Jailbreak 시도**인지 **정상 요청**인지를 실시간으로 분류합니다.
+BERT 파인튜닝 + GPT API 데이터 증강 기반의 LLM Jailbreak 프롬프트 탐지 시스템입니다.  
+텍스트 프롬프트가 **Jailbreak 시도**인지 **정상 요청**인지를 실시간으로 분류하며,  
+**Gradio Live Demo**를 통해 즉시 체험할 수 있습니다.
 
 ---
 
 ## 주요 성과
 
-| 지표 | BERT (최종) | RoBERTa |
-|------|------------|---------|
-| Test Accuracy | **99.33%** | 98.33% |
-| Test F1 (macro) | **99.33%** | 98.33% |
-| Test Precision | **99.34%** | 98.39% |
-| Test Recall | **99.33%** | 98.33% |
-| False Positives | **0건** | — |
+| 지표 | 값 |
+|------|----|
+| Test Accuracy | **97.14%** |
+| Test F1 (macro) | **0.9714** |
+| Test Precision | **97.22%** |
+| Test Recall | **97.14%** |
 
-- 총 데이터셋: **14,000개** (공개 4,000개 + GPT-4o-mini 생성 10,000개)
-- 테스트셋(600개) 기준 오탐(FP) 0건 달성
+- 총 데이터셋: **14,000개** (공개 4,000개 + GPT API 직접 생성 10,000개)
+- Roleplay / DAN / Prompt Injection 유형 탐지율 **100%**
+- Gradio 웹 인터페이스로 **Live Demo** 제공 (`http://127.0.0.1:7860`)
 
 ---
 
@@ -27,13 +28,13 @@ BERT 파인튜닝 기반의 LLM Jailbreak 프롬프트 탐지 시스템입니다
 │                    데이터 파이프라인                        │
 │                                                         │
 │  공개 데이터셋 (HuggingFace)                              │
-│  ├─ walledai/JailbreakHub          (Jailbreak ~2,000)   │
-│  ├─ TrustAIRLab/in-the-wild-...   (Jailbreak)          │
-│  ├─ rubend18/ChatGPT-Jailbreak-.. (Jailbreak)          │
-│  ├─ tatsu-lab/alpaca               (Normal)             │
-│  └─ databricks/databricks-dolly.. (Normal)             │
+│  ├─ walledai/JailbreakHub          (Jailbreak ~1,500)   │
+│  ├─ TrustAIRLab/in-the-wild-...   (Jailbreak   ~300)   │
+│  ├─ rubend18/ChatGPT-Jailbreak-.. (Jailbreak   ~200)   │
+│  ├─ tatsu-lab/alpaca               (Normal    ~1,500)   │
+│  └─ databricks/databricks-dolly.. (Normal      ~500)   │
 │                         +                               │
-│  GPT-4o-mini 생성 (10,000개)                             │
+│  GPT API 생성 (10,000개)                                 │
 │  ├─ 한국어 Jailbreak 패턴        1,500개                  │
 │  ├─ 오타/특수문자 변형            1,000개                  │
 │  ├─ 점진적 유도 방식             1,000개                  │
@@ -44,20 +45,19 @@ BERT 파인튜닝 기반의 LLM Jailbreak 프롬프트 탐지 시스템입니다
                         │ merge + 전처리
                         ▼
 ┌─────────────────────────────────────────────────────────┐
-│                  BERT 파인튜닝                            │
+│              BERT 파인튜닝 (bert-base-uncased)            │
 │                                                         │
-│  bert-base-uncased                                      │
 │  ├─ 입력: max_length=128 토큰                            │
-│  ├─ Batch: 16 / LR: 2e-5 / Warmup: 100 steps           │
-│  ├─ Early stopping (patience=2)                         │
-│  └─ 출력: Normal(0) / Jailbreak(1) 이진 분류            │
+│  ├─ Batch: 32 / LR: 2e-5 / Warmup: 200 steps           │
+│  ├─ Epochs: 3 (Early stopping 적용)                     │
+│  └─ 출력: Normal(0) / Jailbreak(1) 이진 분류             │
 └───────────────────────┬─────────────────────────────────┘
                         │ best checkpoint
                         ▼
 ┌─────────────────────────────────────────────────────────┐
-│                  Gradio 웹 데모                           │
+│                  Gradio Live Demo                        │
 │                                                         │
-│  demo.py → http://localhost:7860                        │
+│  demo.py → http://127.0.0.1:7860                        │
 │  ├─ 텍스트 입력 (한국어/영어)                             │
 │  ├─ 판정 결과: ✅ Normal / 🚨 Jailbreak                   │
 │  └─ 확률 점수: Normal/Jailbreak 각 % 표시                 │
@@ -71,27 +71,31 @@ BERT 파인튜닝 기반의 LLM Jailbreak 프롬프트 탐지 시스템입니다
 ```
 llm-jailbreak-detector/
 ├── data/
-│   ├── raw/                    # 원시 수집/생성 데이터
-│   └── processed/              # 전처리 완료 데이터 (train/val/test.csv)
+│   ├── raw/                      # 원시 수집/생성 데이터
+│   └── processed/                # 전처리 완료 데이터 (train/val/test.csv)
 ├── src/
-│   ├── data_collection.py      # HuggingFace 공개 데이터셋 수집
-│   ├── generate_dataset.py     # GPT-4o-mini로 10,000개 생성
-│   ├── merge_datasets.py       # 데이터셋 병합 및 분할
-│   ├── dataset.py              # PyTorch Dataset / 전처리
-│   ├── model.py                # BertForSequenceClassification 래퍼
-│   ├── train.py                # HuggingFace Trainer 학습
-│   ├── train_roberta.py        # RoBERTa 비교 실험
-│   ├── evaluate.py             # 테스트셋 평가 및 플롯
-│   ├── analysis.py             # Jailbreak 유형 분석 + 오류 분석
-│   └── compare_models.py       # BERT vs RoBERTa 비교 시각화
+│   ├── data_collection.py        # HuggingFace 공개 데이터셋 수집
+│   ├── generate_dataset.py       # GPT API로 10,000개 생성
+│   ├── merge_datasets.py         # 데이터셋 병합 및 분할
+│   ├── dataset.py                # PyTorch Dataset / 전처리
+│   ├── model.py                  # BertForSequenceClassification 래퍼
+│   ├── train_pytorch.py          # Pure PyTorch BERT 학습 (4K 베이스)
+│   ├── train_augmented.py        # BERT 재학습 — 14K 통합 데이터셋 (최종)
+│   ├── train_roberta.py          # RoBERTa 비교 실험
+│   ├── evaluate.py               # 테스트셋 평가 및 플롯
+│   ├── analysis.py               # Jailbreak 유형 분석 + 오류 분석
+│   └── compare_models.py         # BERT vs RoBERTa 비교 시각화
 ├── results/
-│   ├── models/bert-jailbreak/  # 학습된 BERT 체크포인트
-│   ├── plots/                  # 학습 곡선, 혼동행렬 등
-│   ├── val_metrics.json        # BERT 평가 지표
-│   ├── roberta_metrics.json    # RoBERTa 평가 지표
-│   ├── training_log.txt        # 학습 로그
-│   └── error_analysis.txt      # 오류 분석 리포트
-├── demo.py                     # Gradio 웹 데모
+│   ├── models/
+│   │   ├── bert-jailbreak/       # BERT 체크포인트 (4K 학습)
+│   │   ├── roberta-jailbreak/    # RoBERTa 체크포인트
+│   │   └── bert-augmented/       # BERT 체크포인트 (14K 학습, 최종)
+│   ├── plots/                    # 학습 곡선, 혼동행렬 등
+│   ├── val_metrics.json          # BERT (4K) 평가 지표
+│   ├── roberta_metrics.json      # RoBERTa 평가 지표
+│   ├── augmented_metrics.json    # BERT (14K) 평가 지표
+│   └── error_analysis.txt        # 오류 분석 리포트
+├── demo.py                       # Gradio Live Demo
 └── requirements.txt
 ```
 
@@ -99,15 +103,15 @@ llm-jailbreak-detector/
 
 ## AI 도구 활용 전략 (Prompting Log)
 
-본 프로젝트는 **Claude Code**를 AI 페어 프로그래머로 활용하여 개발했습니다.  
-단순 코드 생성이 아닌, 설계 결정·디버깅·리팩터링 전 과정에 걸쳐 프롬프팅을 활용했습니다.
+본 프로젝트는 **Claude Code**를 팀원처럼 매니징하면서 개발했습니다.  
+단순 코드 생성이 아닌, 설계 결정·디버깅·리팩터링·데이터 전략 전 과정에 걸쳐 프롬프팅을 활용했습니다.
 
 ### Claude Code 활용 방식
 
 - **설계 단계**: 데이터 파이프라인 구조, 모델 선택 근거를 프롬프트로 논의
 - **구현 단계**: 각 스크립트의 스켈레톤 생성 → 검토 후 수정
 - **디버깅 단계**: 에러 메시지와 스택 트레이스를 그대로 붙여넣어 원인 분석
-- **실험 단계**: `fp16=False`로 변경한 이유, early stopping 설정 등 하이퍼파라미터 조정 논의
+- **실험 단계**: 하이퍼파라미터 조정, 데이터 증강 전략 논의
 
 ### 주요 프롬프팅 사례 6개
 
@@ -134,7 +138,7 @@ BERT 학습 중 Loss가 갑자기 NaN이 됐어. TrainingArguments에서
 fp16=True로 설정했는데 이게 원인일까? 해결 방법을 알려줘.
 ```
 → `bert-base-uncased`의 LayerNorm이 fp16에서 언더플로우를 일으킬 수 있음을 분석,
-  `fp16=False`로 변경하는 주석 포함 수정 (`# disabled: caused BERT encoder collapse`)
+  `fp16=False`로 변경 (`# disabled: caused BERT encoder collapse` 주석 포함)
 
 **4. Jailbreak 유형 분류기 설계**
 ```
@@ -152,29 +156,30 @@ compare_models.py도 작성해줘.
 ```
 → `roberta-base` 기반 학습 스크립트 + Val F1 학습 곡선 오버레이 플롯 생성
 
-**6. Gradio 웹 데모 구현**
+**6. 14K 데이터 증강 후 재학습**
 ```
-Gradio로 웹 데모를 만들어줘.
-- 텍스트 입력 → 실시간 Jailbreak/Normal 판정
-- 확률 점수 0~100% 표시
-- 예시 프롬프트 버튼 3개 (정상 1개, Jailbreak 2개)
-- 포트 7860, 로컬 실행
-기존 results/models/bert-jailbreak/best/ 모델 사용
+GPT API로 생성한 10,000개 데이터와 기존 4,000개를 합쳐서
+BERT를 재학습하는 train_augmented.py를 작성해줘.
+기존 모델 대비 성능 비교표도 출력해줘.
 ```
-→ `demo.py` 완성 + Gradio 6.x API 변경(`theme`을 `launch()`로 이동) 자동 대응
+→ `PREV_METRICS` 기준 비교 출력 + `bert-augmented` 체크포인트 저장 로직 구현
 
-### Git 커밋 히스토리 요약
+### Git 커밋 히스토리
 
 | 커밋 | 내용 |
 |------|------|
+| `e144ec2` | 최초 커밋 |
 | `e078af7` | 프로젝트 구조 초기화 (디렉터리, .gitignore, requirements.txt) |
 | `4f46e65` | HuggingFace 공개 데이터셋 수집 완료 (~4,000개) |
 | `1f31bd2` | EDA 및 전처리 완료 (train/val/test 분할, 정제) |
 | `b9bc6fb` | BERT 학습 완료 (Val F1=0.9883, Test F1=0.9933) |
 | `50f3a26` | Jailbreak 유형 분석 + 오류 분석 추가 |
 | `112a7b6` | RoBERTa 비교 실험 추가 (BERT 우위 확인) |
-| `7ea3d32` | GPT-4o-mini로 10,000개 데이터 생성 |
+| `7ea3d32` | GPT API로 10,000개 데이터 생성 |
 | `dbcd9bf` | Gradio 웹 데모 추가 (`demo.py`) |
+| `99a69f8` | 종합 README 추가 |
+| `633e6f9` | 14K 증강 데이터셋으로 BERT 재학습 |
+| `543386d` | 데모가 증강 모델(`bert-augmented`) 사용하도록 업데이트 |
 
 ---
 
@@ -185,7 +190,8 @@ Gradio로 웹 데모를 만들어줘.
 ```bash
 # 가상환경 생성 (Python 3.11+)
 python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
+.venv\Scripts\activate           # Windows
+# source .venv/bin/activate      # macOS/Linux
 
 # 의존성 설치
 pip install -r requirements.txt
@@ -197,8 +203,9 @@ pip install -r requirements.txt
 # (선택) HuggingFace 공개 데이터셋 수집
 python src/data_collection.py
 
-# (선택) GPT-4o-mini로 10,000개 생성 — OPENAI_API_KEY 필요
-export OPENAI_API_KEY=sk-...     # Windows: $env:OPENAI_API_KEY="sk-..."
+# (선택) GPT API로 10,000개 생성 — OPENAI_API_KEY 필요
+$env:OPENAI_API_KEY="sk-..."     # Windows PowerShell
+# export OPENAI_API_KEY=sk-...   # macOS/Linux
 python src/generate_dataset.py
 
 # 데이터셋 병합 및 train/val/test 분할
@@ -210,10 +217,13 @@ python src/merge_datasets.py
 ### 3. 모델 학습
 
 ```bash
-# BERT 학습 (GPU 권장, CPU로도 가능)
-python src/train.py
+# BERT 학습 — 4K 공개 데이터 (베이스 모델)
+python src/train_pytorch.py
 # → results/models/bert-jailbreak/ 에 체크포인트 저장
-# → results/training_log.txt, results/plots/ 에 학습 곡선 저장
+
+# BERT 재학습 — 14K 통합 데이터 (최종 모델, 데모용)
+python src/train_augmented.py
+# → results/models/bert-augmented/ 에 체크포인트 저장
 
 # (선택) 테스트셋 최종 평가
 python src/evaluate.py
@@ -226,14 +236,14 @@ python src/train_roberta.py
 python src/compare_models.py
 ```
 
-### 4. 웹 데모 실행
+### 4. Live Demo 실행
 
 ```bash
 python demo.py
-# → http://localhost:7860 에서 접속
+# → http://127.0.0.1:7860 에서 접속
 ```
 
-학습된 모델(`results/models/bert-jailbreak/best/`)이 없으면 먼저 3번 학습 단계를 거쳐야 합니다.
+학습된 모델(`results/models/bert-augmented/best/`)이 없으면 먼저 3번 학습 단계를 거쳐야 합니다.
 
 ---
 
@@ -247,12 +257,12 @@ python demo.py
 | tatsu-lab/alpaca | Normal | ~1,500 |
 | databricks/databricks-dolly-15k | Normal | ~500 |
 | **소계 (공개 데이터셋)** | | **~4,000** |
-| GPT-4o-mini: 한국어 Jailbreak | Jailbreak | 1,500 |
-| GPT-4o-mini: 오타/특수문자 변형 | Jailbreak | 1,000 |
-| GPT-4o-mini: 점진적 유도 방식 | Jailbreak | 1,000 |
-| GPT-4o-mini: 역할극 변형 | Jailbreak | 1,000 |
-| GPT-4o-mini: 기타 변형 패턴 | Jailbreak | 500 |
-| GPT-4o-mini: 정상 프롬프트 (한국어) | Normal | 5,000 |
+| GPT API: 한국어 Jailbreak 패턴 | Jailbreak | 1,500 |
+| GPT API: 오타/특수문자 변형 | Jailbreak | 1,000 |
+| GPT API: 점진적 유도 방식 | Jailbreak | 1,000 |
+| GPT API: 역할극 변형 패턴 | Jailbreak | 1,000 |
+| GPT API: 기타 변형 패턴 | Jailbreak | 500 |
+| GPT API: 정상 프롬프트 (한국어) | Normal | 5,000 |
 | **소계 (생성 데이터)** | | **10,000** |
 | **총계** | | **14,000** |
 
@@ -268,6 +278,26 @@ python demo.py
 | Hypothetical / Fictional | 11 | **100.0%** |
 | Persona / Impersonation | 9 | **100.0%** |
 | Other / Mixed | 181 | **97.8%** |
+
+---
+
+## 비교 실험 결과
+
+### BERT vs RoBERTa (4K 공개 데이터셋 기준)
+
+| 모델 | 데이터셋 | Test Accuracy | Test F1 (macro) | Test Precision | Test Recall |
+|------|---------|--------------|----------------|--------------|------------|
+| **BERT** (bert-base-uncased) | 4,000 | **99.33%** | **0.9933** | **99.34%** | **99.33%** |
+| RoBERTa (roberta-base) | 4,000 | 98.33% | 0.9833 | 98.39% | 98.33% |
+
+### 데이터 증강 전후 비교 (BERT)
+
+| 데이터셋 | 크기 | Test Accuracy | Test F1 (macro) | 비고 |
+|---------|------|--------------|----------------|------|
+| 공개 데이터 (기존) | 4,000 | 99.33% | 0.9933 | 오탐(FP) 0건 |
+| 공개 + GPT API 생성 | **14,000** | 97.14% | **0.9714** | 다국어·변형 패턴 포함 |
+
+> 14K 모델은 수치 지표가 소폭 낮아졌으나, 한국어 및 변형 패턴에 대한 **일반화 성능**이 향상되었습니다.
 
 ---
 
